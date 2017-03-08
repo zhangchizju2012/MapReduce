@@ -1,0 +1,37 @@
+hadoop fs -text output/*.txt
+hadoop com.sun.tools.javac.Main *.java
+jar cf language2.jar *.class
+hadoop jar language2.jar Driver output/language output/language2 7 5
+hdfs dfs -cat output/language2/part-r-00000
+hdfs dfs -mkdir output/language
+hdfs dfs -ls output
+hdfs dfs -put ./*.txt input/language
+hdfs dfs -rm output/wordcount/*
+hdfs dfs -rmr output
+hadoop fs -rmdir output
+docker cp LanguageModel.java 2381e15c2e20:/root/src/language_stage2/LanguageModel.java
+
+start docker: http://kiwenlau.com/2016/06/12/160612-hadoop-cluster-docker-update/
+
+如果hadoop com.sun.tools.javac.Main WordCounter.java有问题
+export HADOOP_CLASSPATH=$JAVA_HOME/lib/tools.jar
+
+logs:
+root@hadoop-master:~/src# hadoop com.sun.tools.javac.Main WordCounter.java
+Error: Could not find or load main class com.sun.tools.javac.Main
+root@hadoop-master:~/src# JAVA_HOME
+bash: JAVA_HOME: command not found
+root@hadoop-master:~/src# $JAVA_HOME
+bash: /usr/lib/jvm/java-7-openjdk-amd64: Is a directory
+root@hadoop-master:~/src# javac -version
+javac 1.7.0_101
+root@hadoop-master:~/src# export HADOOP_CLASSPATH=$JAVA_HOME/lib/tools.jar
+root@hadoop-master:~/src# hadoop com.sun.tools.javac.Main WordCounter.java
+javac: file not found: WordCounter.java
+Usage: javac <options> <source files>
+use -help for a list of possible options
+root@hadoop-master:~/src# hadoop com.sun.tools.javac.Main *.java
+Note: WordCount.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+root@hadoop-master:~/src# jar cf wordCount.jar *.class
+
