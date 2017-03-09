@@ -53,8 +53,22 @@ public class pageRank {
 
         public void reduce(Text key, Iterable<Text> values,
                            Context context) throws IOException, InterruptedException {
+            double weight = 0;
             for (Text val : values) {
-                context.write(key, val);
+                String line = val.toString();
+                if (line.contains("=")==false){
+                    weight = Double.parseDouble(line);
+                    break;//remove break make it even worse
+                }
+            }
+            for (Text val : values) {
+                String line = val.toString().trim();
+                if (line.contains("=")==true){
+                    String[] record = line.split("=");
+                    String website = record[0];
+                    double value = Double.parseDouble(record[1]);
+                    context.write(new Text(website), new Text(weight+" "+value));
+                }
             }
         }
     }
