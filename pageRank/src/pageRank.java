@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -54,21 +56,23 @@ public class pageRank {
         public void reduce(Text key, Iterable<Text> values,
                            Context context) throws IOException, InterruptedException {
             double weight = 0;
+            List<String> transitionUnit = new ArrayList<String>();
             for (Text val : values) {
                 String line = val.toString();
                 if (line.contains("=")==false){
                     weight = Double.parseDouble(line);
-                    break;//remove break make it even worse
+                }
+                else{
+                    transitionUnit.add(line.toString());
                 }
             }
-            for (Text val : values) {
-                String line = val.toString().trim();
-                if (line.contains("=")==true){
-                    String[] record = line.split("=");
-                    String website = record[0];
-                    double value = Double.parseDouble(record[1]);
-                    context.write(new Text(website), new Text(weight+" "+value));
-                }
+            // use for (Text val : values) twice instead of add transitionUnit will make
+            // it doesn't work, don't know why now, may can try to debug.
+            for (String unit : transitionUnit) {
+                String[] record = unit.split("=");
+                String website = record[0];
+                double value = Double.parseDouble(record[1]);
+                context.write(new Text(website), new Text(weight*value));          
             }
         }
     }
