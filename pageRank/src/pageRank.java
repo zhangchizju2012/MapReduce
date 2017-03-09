@@ -10,51 +10,59 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-public class PageRank {
+public class pageRank {
 
-    public static class TokenizerMapper extends
-            Mapper<Object, Text, Text, IntWritable> {
+    public static class PageRankMapper extends
+            Mapper<Object, Text, Text, Text> {
 
-        private final static IntWritable one = new IntWritable(1);
-        private Text word = new Text();
-
-        public void map(Object key, Text value, Context context)
-                throws IOException, InterruptedException {
-            StringTokenizer itr = new StringTokenizer(value.toString());
-            while (itr.hasMoreTokens()) {
-                word.set(itr.nextToken());
-                context.write(word, one);
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            
+            String line = value.toString();            
+            line = line.trim();            
+            String[] transtion = line.split("\t"); //split by ' ', '\t'...ect
+            String from = transtion[0];
+            String[] to = transtion[1].split(",");
+            double length = (double)1/to.length;
+            for(int i = 0; i < to.length; i++){
+                context.write(new Text(from), new Text(to[i]+"="+length));
             }
         }
     }
 
-    public static class IntSumReducer extends
-            Reducer<Text, IntWritable, Text, IntWritable> {
-        private IntWritable result = new IntWritable();
+    public static class PageRankReducer extends
+            Reducer<Text, Text, Text, Text> {
 
-        public void reduce(Text key, Iterable<IntWritable> values,
+        public void reduce(Text key, Iterable<Text> values,
                            Context context) throws IOException, InterruptedException {
-            int sum = 0;
-            for (IntWritable val : values) {
-                sum += val.get();
+            for (Text val : values) {
+                context.write(key, val);
             }
-            result.set(sum);
-            context.write(key, result);
         }
     }
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = new Job(conf, "word count");
-                job.setJarByClass(WordCount.class);
-        job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(IntSumReducer.class);
-        job.setReducerClass(IntSumReducer.class);
+        Job job = new Job(conf, "page rank");
+        job.setJarByClass(pageRank.class);
+
+        job.setMapperClass(PageRankMapper.class);
+        job.setReducerClass(PageRankReducer.class);
+
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(Text.class);
+
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(Text.class);
+
+        job.setInputFormatClass(TextInputFormat.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
+
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+        job.waitForCompletion(true);
     }
 }
