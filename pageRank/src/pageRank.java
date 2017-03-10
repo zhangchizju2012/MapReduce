@@ -71,8 +71,8 @@ public class pageRank {
             for (String unit : transitionUnit) {
                 String[] record = unit.split("=");
                 String website = record[0];
-                double value = Double.parseDouble(record[1]);
-                context.write(new Text(website), new Text(weight*value));          
+                double value = Double.parseDouble(record[1]) * weight;
+                context.write(new Text(website), new Text(""+value));          
             }
         }
     }
