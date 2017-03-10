@@ -13,3 +13,30 @@ hadoop com.sun.tools.javac.Main *.java
 jar cf pageRank.jar *.class
 hadoop jar pageRank.jar pageRank input/pageRank/transitionsmall.txt input/pageRank/prsmall.txt output/pageRank
 hdfs dfs -cat output/pageRank/part-r-00000
+
+The result looks like this:
+root@hadoop-master:~/src/pageRank# hdfs dfs -cat output/pageRankNew0123/*
+a	0.3359375
+b	0.22135416666666666
+c	0.22135416666666666
+d	0.22135416666666666
+root@hadoop-master:~/src/pageRank# hdfs dfs -cat output/pageRankNew012/*
+a	0.328125
+b	0.22395833333333331
+c	0.22395833333333331
+d	0.22395833333333331
+root@hadoop-master:~/src/pageRank# hdfs dfs -cat output/pageRankNew01/*
+a	0.34375
+b	0.21875
+c	0.21875
+d	0.21875
+root@hadoop-master:~/src/pageRank# hdfs dfs -cat output/pageRankNew0/*
+a	0.3125
+b	0.22916666666666666
+c	0.22916666666666666
+d	0.22916666666666666
+root@hadoop-master:~/src/pageRank# hdfs dfs -cat output/pageRankNew/*
+a	0.375
+b	0.20833333333333331
+c	0.20833333333333331
+d	0.20833333333333331
