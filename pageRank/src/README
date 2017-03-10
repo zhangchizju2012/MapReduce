@@ -1,0 +1,15 @@
+Compile and run the program on hadoop:
+
+hdfs dfs -rmr output/*
+hadoop com.sun.tools.javac.Main *.java
+jar cf driver.jar *.class
+hadoop jar driver.jar driver input/pageRank/transitionsmall.txt input/pageRank/prsmall.txt output/pageRankTemp output/pageRankNew 5
+hdfs dfs -cat output/pageRankNew0123/*
+
+
+Compile and run the first part of the program on hadoop:
+hdfs dfs -rmr output/*
+hadoop com.sun.tools.javac.Main *.java
+jar cf pageRank.jar *.class
+hadoop jar pageRank.jar pageRank input/pageRank/transitionsmall.txt input/pageRank/prsmall.txt output/pageRank
+hdfs dfs -cat output/pageRank/part-r-00000
